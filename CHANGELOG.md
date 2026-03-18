@@ -22,5 +22,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Install generator (`rails generate rails_ai_context:install`)
 - Rake tasks: `ai:context`, `ai:serve`, `ai:serve_http`, `ai:inspect`
 - CLI executable: `rails-ai-context serve|context|inspect`
-- Stdio + Streamable HTTP transport support via official mcp-ruby SDK
+- Stdio + Streamable HTTP transport support via official mcp SDK
 - CI matrix: Ruby 3.2/3.3/3.4 × Rails 7.1/7.2/8.0

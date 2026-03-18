@@ -225,6 +225,10 @@ bundle exec rspec
 
 Bug reports and pull requests welcome at https://github.com/crisnahine/rails-ai-context.
 
+## Sponsorship
+
+If rails-ai-context helps your workflow, consider supporting the project — [become a monthly sponsor or buy me a coffee](https://github.com/sponsors/crisnahine).
+
 ## License
 
 [MIT License](LICENSE)

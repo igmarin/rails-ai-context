@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["crisnahine"]
   spec.email         = ["crisjosephnahine@gmail.com"]
 
-  spec.summary       = "Turn any Rails app into an AI-ready codebase — one gem install."
+  spec.summary       = "Auto-expose Rails app structure to AI via MCP (Model Context Protocol) — zero config."
   spec.description   = <<~DESC
     rails-ai-context automatically introspects your Rails application and exposes
     models, routes, schema, jobs, mailers, and conventions through the Model Context
@@ -21,10 +21,20 @@ Gem::Specification.new do |spec|
 
   spec.required_ruby_version = ">= 3.2.0"
 
-  spec.metadata["homepage_uri"]    = spec.homepage
-  spec.metadata["source_code_uri"] = spec.homepage
-  spec.metadata["changelog_uri"]   = "#{spec.homepage}/blob/main/CHANGELOG.md"
+  spec.metadata["homepage_uri"]      = spec.homepage
+  spec.metadata["source_code_uri"]   = spec.homepage
+  spec.metadata["changelog_uri"]     = "#{spec.homepage}/blob/main/CHANGELOG.md"
+  spec.metadata["documentation_uri"] = "#{spec.homepage}#readme"
+  spec.metadata["bug_tracker_uri"]   = "#{spec.homepage}/issues"
+  spec.metadata["funding_uri"]       = "https://github.com/sponsors/crisnahine"
   spec.metadata["rubygems_mfa_required"] = "true"
+
+  spec.post_install_message = <<~MSG
+    rails-ai-context installed! Quick start:
+      rails generate rails_ai_context:install
+      rails ai:context     # generate CLAUDE.md, .cursorrules, etc.
+      rails ai:serve       # start MCP server for Claude Code / Cursor
+  MSG
 
   spec.files = Dir.chdir(__dir__) do
     `git ls-files -z`.split("\x0").reject do |f|

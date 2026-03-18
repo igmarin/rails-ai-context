@@ -67,15 +67,17 @@ This creates:
 
 Each file is tailored to the AI assistant's preferred format. **Commit these files.** Your entire team gets smarter AI assistance.
 
-### 3. Start the MCP Server
+### 3. MCP Server (Auto-discovered)
 
-For Claude Code / Cursor / any MCP client:
+The install generator creates a `.mcp.json` file that Claude Code and Cursor auto-detect — **no manual config needed**. Just open your project.
+
+To start manually:
 
 ```bash
 rails ai:serve
 ```
 
-Or add to your Claude Code config (`~/.claude/claude_desktop_config.json`):
+Or configure manually in `~/.claude/claude_desktop_config.json`:
 
 ```json
 {

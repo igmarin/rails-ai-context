@@ -1,11 +1,26 @@
 # frozen_string_literal: true
 
+require "json"
+
 module RailsAiContext
   module Generators
     class InstallGenerator < Rails::Generators::Base
       source_root File.expand_path("templates", __dir__)
 
-      desc "Install rails-ai-context: creates initializer and generates initial context files."
+      desc "Install rails-ai-context: creates initializer, MCP config, and generates initial context files."
+
+      def create_mcp_config
+        create_file ".mcp.json", JSON.pretty_generate({
+          mcpServers: {
+            "rails-ai-context" => {
+              command: "bundle",
+              args: [ "exec", "rails", "ai:serve" ]
+            }
+          }
+        }) + "\n"
+
+        say "Created .mcp.json (auto-discovered by Claude Code, Cursor, etc.)", :green
+      end
 
       def create_initializer
         create_file "config/initializers/rails_ai_context.rb", <<~RUBY
@@ -83,10 +98,11 @@ module RailsAiContext
         say "  Windsurf           → .windsurfrules                   (rails ai:context:windsurf)"
         say "  GitHub Copilot     → .github/copilot-instructions.md  (rails ai:context:copilot)"
         say ""
-        say "For Claude Code, add to your claude_desktop_config.json:", :yellow
-        say '  { "mcpServers": { "rails": { "command": "rails", "args": ["ai:serve"], "cwd": "/path/to/your/app" } } }'
+        say "MCP auto-discovery:", :yellow
+        say "  .mcp.json is auto-detected by Claude Code and Cursor."
+        say "  No manual MCP config needed — just open your project."
         say ""
-        say "Commit CLAUDE.md and .cursorrules so your team benefits!", :green
+        say "Commit CLAUDE.md, .cursorrules, and .mcp.json so your team benefits!", :green
       end
     end
   end

@@ -1,6 +1,6 @@
 # rails-ai-context — Complete Guide
 
-> Full documentation for [rails-ai-context](https://github.com/crisnahine/rails-ai-context).
+> Full documentation for the forked [rails-ai-context](https://github.com/igmarin/rails-ai-context).
 > For a quick overview, see the [README](../README.md).
 
 ---
@@ -38,8 +38,8 @@ rails ai:context
 
 This creates:
 1. `config/initializers/rails_ai_context.rb` — configuration file
-2. `.mcp.json` — MCP auto-discovery for Claude Code and Cursor
-3. 17 context files — tailored for each AI assistant
+2. `.mcp.json` — MCP auto-discovery for MCP-capable clients
+3. Assistant-specific context files — including `AGENTS.md` for Codex
 
 ### Existing project
 
@@ -181,9 +181,10 @@ Commit **all files except `.ai-context.json`** (which is gitignored). This gives
 
 | Command | Mode | Format | Description |
 |---------|------|--------|-------------|
-| `rails ai:context` | compact | all | Generate all 17 context files |
+| `rails ai:context` | compact | all | Generate all context files |
 | `rails ai:context:full` | full | all | Generate all files in full mode |
 | `rails ai:context:claude` | compact | Claude | CLAUDE.md + .claude/rules/ |
+| `rails ai:context:codex` | compact | Codex | AGENTS.md + .codex/README.md |
 | `rails ai:context:cursor` | compact | Cursor | .cursorrules + .cursor/rules/ |
 | `rails ai:context:windsurf` | compact | Windsurf | .windsurfrules + .windsurf/rules/ |
 | `rails ai:context:copilot` | compact | Copilot | copilot-instructions.md + .github/instructions/ |
@@ -455,15 +456,6 @@ In addition to tools, the gem registers static MCP resources that AI clients can
 
 ## MCP Server Setup
 
-### MCP Registry
-
-This server is listed on the [official MCP Registry](https://registry.modelcontextprotocol.io) as `io.github.crisnahine/rails-ai-context`.
-
-```bash
-# Search for it
-curl "https://registry.modelcontextprotocol.io/v0.1/servers?search=rails-ai-context"
-```
-
 ### Auto-discovery (recommended)
 
 The install generator creates `.mcp.json` in your project root:
@@ -479,7 +471,7 @@ The install generator creates `.mcp.json` in your project root:
 }
 ```
 
-**Claude Code** and **Cursor** auto-detect this file. No manual config needed — just open your project.
+**Claude Code** and **Cursor** auto-detect this file. Codex uses the generated `AGENTS.md` plus your local Codex configuration.
 
 ### Claude Code
 
@@ -540,6 +532,16 @@ RailsAiContext.configure do |config|
   config.http_bind  = "127.0.0.1"  # default (localhost only)
 end
 ```
+
+Keep HTTP bound to `127.0.0.1` unless you add your own network and authentication controls. The tools are read-only, but they may still expose sensitive application structure.
+
+### Codex
+
+This fork adds Codex support through `AGENTS.md` and `.codex/README.md`.
+
+- Run `rails ai:context:codex` to regenerate Codex guidance.
+- Commit `AGENTS.md` for shared repository instructions.
+- Keep personal Codex preferences in `~/.codex/AGENTS.md`.
 
 Both transports are **read-only** — they expose the same 9 tools and never modify your app.
 
@@ -821,6 +823,8 @@ Works in:
 - The gem makes **no outbound network requests**
 - File type validation prevents arbitrary file access in code search
 - `max_results` is capped at 100 to prevent resource exhaustion
+- Invalid regex input in the Ruby fallback path returns a controlled error response
+- Read-only access can still expose sensitive application structure; treat generated files and MCP responses as internal artifacts
 
 ---
 

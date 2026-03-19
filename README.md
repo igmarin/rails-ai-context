@@ -3,17 +3,18 @@
 **Turn any Rails app into an AI-ready codebase — one gem install.**
 
 [![Gem Version](https://badge.fury.io/rb/rails-ai-context.svg)](https://rubygems.org/gems/rails-ai-context)
-[![MCP Registry](https://img.shields.io/badge/MCP_Registry-listed-green)](https://registry.modelcontextprotocol.io)
-[![CI](https://github.com/crisnahine/rails-ai-context/actions/workflows/ci.yml/badge.svg)](https://github.com/crisnahine/rails-ai-context/actions)
+[![CI](https://github.com/igmarin/rails-ai-context/actions/workflows/ci.yml/badge.svg)](https://github.com/igmarin/rails-ai-context/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-![Demo](https://raw.githubusercontent.com/crisnahine/rails-ai-context/main/demo.gif)
+![Demo](https://raw.githubusercontent.com/igmarin/rails-ai-context/main/demo.gif)
 
 ---
 
 ## Why?
 
-You open Claude Code, Cursor, or Copilot and ask: *"Add a draft status to posts with a scheduled publish date."*
+This repository is a fork of the original `crisnahine/rails-ai-context`, maintained by Ismael Marin to add Codex support and fork-specific hardening while preserving the gem's Rails MCP workflow.
+
+You open Claude Code, Cursor, Copilot, or Codex and ask: *"Add a draft status to posts with a scheduled publish date."*
 
 The AI doesn't know your schema, your Devise setup, your Sidekiq jobs, or that `Post` already has an `enum :status`. It generates generic code that doesn't match your app.
 
@@ -35,13 +36,13 @@ rails ai:context
 
 That's it. Three commands. Your AI assistant now understands your entire Rails app.
 
-The install generator creates `.mcp.json` for auto-discovery — Claude Code and Cursor detect it automatically. No manual MCP config needed.
+The install generator creates `.mcp.json` for MCP-capable clients, and `rails ai:context` now generates `AGENTS.md` for Codex-aware workflows.
 
 ---
 
 ## What Gets Generated
 
-`rails ai:context` generates **17 files** tailored to each AI assistant:
+`rails ai:context` generates assistant-specific files tailored to each AI workflow:
 
 ```
 your-rails-app/
@@ -52,6 +53,11 @@ your-rails-app/
 │       ├── rails-schema.md                               table listing
 │       ├── rails-models.md                               model listing
 │       └── rails-mcp-tools.md                            full tool reference
+│
+├── 🟡 OpenAI Codex
+│   ├── AGENTS.md                                         project instructions for Codex
+│   └── .codex/
+│       └── README.md                                     local Codex setup notes
 │
 ├── 🟢 Cursor
 │   ├── .cursorrules                                      legacy compat
@@ -78,7 +84,7 @@ your-rails-app/
 └── .mcp.json                                             MCP auto-discovery
 ```
 
-Each file respects the AI tool's format and size limits. **Commit these files** — your entire team gets smarter AI assistance.
+Each file respects the AI tool's format and size limits. **Commit these files** so the same project guidance is available to your whole team.
 
 > Use `rails ai:context:full` to dump everything into the files (good for small apps <30 models).
 
@@ -178,9 +184,9 @@ That's **~95% fewer tokens** for the same understanding. The AI gets a compact o
 
 ## MCP Server Setup
 
-The install generator creates `.mcp.json` — **Claude Code and Cursor auto-detect it**. No manual config needed.
+The install generator creates `.mcp.json` for MCP-capable clients. Claude Code and Cursor can auto-detect it, while Codex can use the generated `AGENTS.md` plus your local Codex configuration.
 
-This server is also listed on the [official MCP Registry](https://registry.modelcontextprotocol.io) as `io.github.crisnahine/rails-ai-context`.
+This fork keeps [`server.json`](server.json) aligned to the fork repository metadata. It intentionally does **not** advertise a packaged registry asset until a fork-specific release artifact exists.
 
 To start manually: `rails ai:serve`
 
@@ -217,7 +223,20 @@ RailsAiContext.configure do |config|
   config.http_path  = "/mcp"
 end
 ```
+
+Security note: keep the HTTP transport bound to `127.0.0.1` unless you add your own network and authentication controls. The tools are read-only, but they can still expose sensitive application structure.
 </details>
+
+---
+
+## Codex Setup
+
+Codex support in this fork is centered on **`AGENTS.md`** at the repository root.
+
+- Run `rails ai:context:codex` to regenerate `AGENTS.md` and `.codex/README.md`.
+- Keep `AGENTS.md` committed so Codex sees project-specific instructions.
+- Keep personal preferences in `~/.codex/AGENTS.md`; use the repository `AGENTS.md` for shared guidance.
+- When Codex is connected to the generated MCP server, prefer the `rails_*` tools and start with `detail:"summary"`.
 
 ---
 
@@ -286,9 +305,10 @@ Frontend introspectors (views, Turbo, Stimulus, assets) degrade gracefully — t
 
 | Command | Description |
 |---------|-------------|
-| `rails ai:context` | Generate all 17 context files (skips unchanged) |
+| `rails ai:context` | Generate all context files (skips unchanged) |
 | `rails ai:context:full` | Generate all files in full mode (dumps everything) |
 | `rails ai:context:claude` | Generate Claude Code files only |
+| `rails ai:context:codex` | Generate Codex files only (`AGENTS.md` + `.codex/README.md`) |
 | `rails ai:context:cursor` | Generate Cursor files only |
 | `rails ai:context:windsurf` | Generate Windsurf files only |
 | `rails ai:context:copilot` | Generate Copilot files only |
@@ -335,17 +355,13 @@ The gem parses `db/schema.rb` as text when no database is connected. Works in CI
 ## Contributing
 
 ```bash
-git clone https://github.com/crisnahine/rails-ai-context.git
+git clone https://github.com/igmarin/rails-ai-context.git
 cd rails-ai-context && bundle install
 bundle exec rspec       # 350 examples
 bundle exec rubocop     # Lint
 ```
 
-Bug reports and pull requests welcome at [github.com/crisnahine/rails-ai-context](https://github.com/crisnahine/rails-ai-context).
-
-## Sponsorship
-
-If rails-ai-context helps your workflow, consider [becoming a sponsor](https://github.com/sponsors/crisnahine).
+Bug reports and pull requests for this fork are handled at [github.com/igmarin/rails-ai-context](https://github.com/igmarin/rails-ai-context).
 
 ## License
 

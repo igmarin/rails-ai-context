@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [0.8.0] - 2026-03-19
+
+### Added
+
+- **OpenAI Codex support** via `AGENTS.md`, `.codex/README.md`, and `rails ai:context:codex`.
+- **Codex serializer integration** in the context file pipeline so `format: :all` now includes Codex output.
+
+### Fixed
+
+- **`rails_search_code` invalid regex handling** — the Ruby fallback path now returns a controlled error response instead of raising `RegexpError`.
+
+### Changed
+
+- **Fork metadata** — gemspec, `server.json`, README, CONTRIBUTING, SECURITY, and CODE_OF_CONDUCT now point to the maintained fork instead of upstream operational contacts.
+- **Security documentation** — clarified that MCP tools are read-only but may still expose sensitive application structure, especially over HTTP transport.
+- **Internal review summary** — translated `resume.md` to English and updated it to reflect the current fork, Codex support, compatibility notes, and security posture.
+
 ## [0.7.1] - 2026-03-19
 
 ### Added

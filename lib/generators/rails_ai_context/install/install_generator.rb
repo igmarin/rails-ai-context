@@ -103,12 +103,14 @@ module RailsAiContext
         say "Quick start:", :yellow
         say "  rails ai:context         # Generate all context files"
         say "  rails ai:context:claude   # Generate CLAUDE.md only"
+        say "  rails ai:context:codex    # Generate AGENTS.md only"
         say "  rails ai:context:cursor   # Generate .cursorrules only"
         say "  rails ai:serve           # Start MCP server (stdio)"
         say "  rails ai:inspect         # Print introspection summary"
         say ""
         say "Generated files per AI tool:", :yellow
         say "  Claude Code    → CLAUDE.md + .claude/rules/*.md"
+        say "  OpenAI Codex   → AGENTS.md + .codex/README.md"
         say "  Cursor         → .cursorrules + .cursor/rules/*.mdc"
         say "  Windsurf       → .windsurfrules + .windsurf/rules/*.md"
         say "  GitHub Copilot → .github/copilot-instructions.md + .github/instructions/*.instructions.md"

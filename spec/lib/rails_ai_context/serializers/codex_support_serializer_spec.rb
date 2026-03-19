@@ -22,7 +22,8 @@ RSpec.describe RailsAiContext::Serializers::CodexSupportSerializer do
       expect(readme).to include("AGENTS.md")
       expect(readme).to include(".mcp.json")
       expect(readme).to include("Team rules")
-      expect(readme).to include("snapshots")
+      expect(readme).to include("overrides.md")
+      expect(readme).to include("omit-merge")
     end
   end
 

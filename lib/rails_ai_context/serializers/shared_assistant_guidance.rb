@@ -10,6 +10,9 @@ module RailsAiContext
     module SharedAssistantGuidance
       module_function
 
+      # First line of +overrides.md+ while in stub mode — file is not merged until removed.
+      OMIT_MERGE_FIRST_LINE = /\A<!--\s*rails-ai-context:omit-merge\s*-->\z/i
+
       # @return [Array<String>] markdown lines including heading and trailing blank line
       def compact_engineering_rules_lines
         [
@@ -37,6 +40,10 @@ module RailsAiContext
           "### Testing",
           "- Prefer request or system specs for HTTP flows and integration; keep model specs tight for business rules.",
           "- Run the project's test suite after substantive edits (often `bundle exec rspec` — confirm framework via `rails_get_test_info`).",
+          "",
+          "### Repo-specific constraints",
+          "- Hot tables, tenant/auth scoping, mandatory spec types, and internal policies belong in `config/rails_ai_context/overrides.md`.",
+          "- Remove the first-line `<!-- rails-ai-context:omit-merge -->` stub marker before that file is merged into Copilot/Codex; use `overrides.md.example` as a starting outline.",
           "",
           "_Regenerated files are snapshots. Re-merge team-specific performance, security, or compliance rules at the top after `rails ai:context`, or keep them in separate committed instruction files._",
           ""
@@ -84,18 +91,32 @@ module RailsAiContext
         lines
       end
 
-      # @return [String, nil] raw markdown body from the host app overrides file, or +nil+
+      # @return [String, nil] raw markdown body from the host app overrides file, or +nil+ if missing,
+      #   empty, or still in stub mode (first non-empty line is +<!-- rails-ai-context:omit-merge -->+).
       def read_assistant_overrides
         path = resolved_assistant_overrides_path
         return nil unless path && File.file?(path)
 
         body = File.read(path).strip
-        body.empty? ? nil : body
+        return nil if body.empty?
+        return nil unless mergeable_override_content?(body)
+
+        body
       end
 
-      # @return [Boolean] whether the overrides file exists and has non-whitespace content
+      # @return [Boolean] whether overrides are active (merge + Cursor pointer), not placeholder-only
       def overrides_file_exists_and_nonempty?
         read_assistant_overrides != nil
+      end
+
+      # @param body [String] trimmed file contents
+      # @return [Boolean] +false+ when the install stub has not been activated yet
+      def mergeable_override_content?(body)
+        first = body.each_line.map(&:strip).find { |line| !line.empty? }
+        return false if first.nil?
+        return false if OMIT_MERGE_FIRST_LINE.match?(first)
+
+        true
       end
 
       # @return [String, nil] absolute path to overrides file if Rails app is available

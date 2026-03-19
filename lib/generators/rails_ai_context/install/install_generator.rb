@@ -52,7 +52,9 @@ module RailsAiContext
             # Max response size for MCP tool results (chars). Safety net for large apps.
             # config.max_tool_response_chars = 120_000
 
-            # Optional: path to markdown merged into compact Copilot + Codex (default: config/rails_ai_context/overrides.md)
+            # Optional: path to markdown merged into compact Copilot + Codex (default: config/rails_ai_context/overrides.md).
+            # The install stub uses <!-- rails-ai-context:omit-merge --> on line 1 — delete it when adding real rules
+            # (until then nothing is merged). See config/rails_ai_context/overrides.md.example for an outline.
             # config.assistant_overrides_path = "config/rails_ai_context/overrides.md"
 
             # Compact file model name caps (0 = MCP pointer only, no names listed)
@@ -70,13 +72,23 @@ module RailsAiContext
       end
 
       def create_assistant_overrides_template
-        path = "config/rails_ai_context/overrides.md"
-        dest = File.join(destination_root, path)
-        return if File.exist?(dest)
+        dir = "config/rails_ai_context"
+        FileUtils.mkdir_p(File.join(destination_root, dir))
 
-        FileUtils.mkdir_p(File.dirname(dest))
-        copy_file "overrides.md", path
-        say "Created #{path} (optional repo-specific guidance for Copilot/Codex)", :green
+        stub = File.join(destination_root, dir, "overrides.md")
+        unless File.exist?(stub)
+          create_file "#{dir}/overrides.md", <<~MD
+            <!-- rails-ai-context:omit-merge -->
+
+          MD
+          say "Created #{dir}/overrides.md (stub — remove omit-merge line when adding real rules)", :green
+        end
+
+        example = File.join(destination_root, dir, "overrides.md.example")
+        unless File.exist?(example)
+          copy_file "overrides.md.example", "#{dir}/overrides.md.example"
+          say "Created #{dir}/overrides.md.example (reference outline, not merged)", :green
+        end
       end
 
       def add_to_gitignore
@@ -139,6 +151,10 @@ module RailsAiContext
         say "Context modes:", :yellow
         say "  rails ai:context         # compact mode (default, smart for any app size)"
         say "  rails ai:context:full    # full dump (good for small apps)"
+        say ""
+        say "Repo-specific Copilot/Codex rules:", :yellow
+        say "  Edit config/rails_ai_context/overrides.md — remove the first-line omit-merge comment to enable merge."
+        say "  See overrides.md.example for a suggested outline."
         say ""
         say "Commit context files and .mcp.json so your team benefits!", :green
       end

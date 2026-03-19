@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Overrides stub** — `config/rails_ai_context/overrides.md` from install is a one-line `<!-- rails-ai-context:omit-merge -->` marker; it is **not** merged into Copilot/Codex until removed, avoiding committed placeholder noise. Added `overrides.md.example` with a real outline; engineering rules now point teams at overrides + example.
+
 ### Added
 
 - **`RailsAiContext::Serializers::SharedAssistantGuidance`** — shared engineering rules, Rails performance pattern examples, optional **`config/rails_ai_context/overrides.md`** merge into compact Copilot + Codex, and Cursor `rails-engineering.mdc` body.

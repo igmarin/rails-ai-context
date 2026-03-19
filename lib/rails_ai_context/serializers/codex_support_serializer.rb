@@ -56,7 +56,7 @@ module RailsAiContext
 
           ## Team rules
 
-          Generated files are **snapshots**. Re-merge any repo-specific performance, security, or compliance guidance (e.g. from your previous `.github/copilot-instructions.md` or internal playbooks) after regenerating, or keep that guidance in separate committed rule files.
+          Generated files are **snapshots**. For repo-specific rules (hot tables, auth scoping, required specs), use `config/rails_ai_context/overrides.md`: remove the first-line `<!-- rails-ai-context:omit-merge -->` stub so content is merged into `AGENTS.md` and Copilot. See `overrides.md.example`. Alternatively re-merge curated guidance after each `rails ai:context`.
         MD
       end
     end

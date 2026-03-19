@@ -21,6 +21,17 @@ RSpec.describe RailsAiContext::Serializers::SharedAssistantGuidance do
         expect(described_class.read_assistant_overrides).to eq("# Team rule\n\nKeep this.")
       end
     end
+
+    it "returns nil when stub omit-merge line is still present" do
+      Dir.mktmpdir do |dir|
+        allow(Rails.application).to receive(:root).and_return(Pathname.new(dir))
+        sub = File.join(dir, "config", "rails_ai_context")
+        FileUtils.mkdir_p(sub)
+        File.write(File.join(sub, "overrides.md"), "<!-- rails-ai-context:omit-merge -->\n\n# Noise\n")
+
+        expect(described_class.read_assistant_overrides).to be_nil
+      end
+    end
   end
 
   describe ".repo_specific_guidance_section_lines" do

@@ -26,6 +26,8 @@ RSpec.describe RailsAiContext::Serializers::CopilotSerializer do
       expect(output).to include("N+1")
       expect(output).to include("Rails patterns")
       expect(output).to include("find_each")
+      expect(output).to include("Repo-specific constraints")
+      expect(output).to include("omit-merge")
     end
 
     it "includes model associations" do

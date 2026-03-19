@@ -38,7 +38,7 @@ rails ai:context
 
 This creates:
 1. `config/initializers/rails_ai_context.rb` — configuration file
-2. `config/rails_ai_context/overrides.md` — optional repo-specific guidance (merged into compact Copilot + Codex)
+2. `config/rails_ai_context/overrides.md` — stub (omit-merge line); `overrides.md.example` — outline (not merged)
 3. `.mcp.json` — MCP auto-discovery for MCP-capable clients
 4. Assistant-specific context files — including `AGENTS.md` for Codex
 
@@ -63,7 +63,7 @@ rails ai:doctor
 
 1. Creates `.mcp.json` in project root (MCP auto-discovery)
 2. Creates `config/initializers/rails_ai_context.rb` with commented defaults
-3. Creates `config/rails_ai_context/overrides.md` when absent (edit for large-table / team policies)
+3. Creates `config/rails_ai_context/overrides.md` (stub) and `overrides.md.example` when absent — remove the omit-merge line from `overrides.md` before real rules are merged
 4. Adds `.ai-context.json` to `.gitignore` (JSON cache — markdown files should be committed)
 5. Generates all context files
 
@@ -178,10 +178,13 @@ Commit **all files except `.ai-context.json`** (which is gitignored). This gives
 
 ### Repo-specific guidance (`config/rails_ai_context/overrides.md`)
 
-Optional markdown **merged verbatim** into compact `.github/copilot-instructions.md` and `AGENTS.md` under **Repo-specific guidance** when you run `rails ai:context`. Use it for tables that must not be full-scanned, tenant rules, caching/replica notes, and other policies the gem cannot infer.
+Optional markdown **merged verbatim** into compact `.github/copilot-instructions.md` and `AGENTS.md` under **Repo-specific guidance** when you run `rails ai:context` — **only after** you remove the install stub’s first line: `<!-- rails-ai-context:omit-merge -->`. While that line is the first non-empty line in the file, the gem treats overrides as inactive (no placeholder noise in generated files).
 
+- Use **`overrides.md.example`** as a starting outline (that file is never merged).
 - Override path: `config.assistant_overrides_path` (relative to `Rails.root` or absolute).
-- Cursor does not embed the full file in MDC (size limits); `rails-engineering.mdc` adds a pointer when the file exists and is non-empty.
+- Cursor does not embed the full file in MDC (size limits); `rails-engineering.mdc` adds a pointer only when mergeable override content exists (stub removed).
+
+The same engineering baseline intentionally appears in Copilot, Codex, and Cursor rules so each client gets local context; change wording once in `SharedAssistantGuidance` in the gem if you maintain a fork.
 
 ---
 

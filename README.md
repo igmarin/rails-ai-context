@@ -6,8 +6,6 @@
 [![CI](https://github.com/igmarin/rails-ai-context/actions/workflows/ci.yml/badge.svg)](https://github.com/igmarin/rails-ai-context/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-![Demo](https://raw.githubusercontent.com/igmarin/rails-ai-context/main/demo.gif)
-
 ---
 
 ## Why?

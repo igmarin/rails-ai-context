@@ -22,7 +22,7 @@ RSpec.describe RailsAiContext::Serializers::ClaudeRulesSerializer do
   it "generates .claude/rules/ files" do
     Dir.mktmpdir do |dir|
       result = described_class.new(context).call(dir)
-      expect(result[:written].size).to eq(2)
+      expect(result[:written].size).to eq(3)
 
       schema_file = File.join(dir, ".claude", "rules", "rails-schema.md")
       expect(File.exist?(schema_file)).to be true
@@ -35,17 +35,26 @@ RSpec.describe RailsAiContext::Serializers::ClaudeRulesSerializer do
       content = File.read(models_file)
       expect(content).to include("User")
       expect(content).to include("rails_get_model_details")
+
+      tools_file = File.join(dir, ".claude", "rules", "rails-mcp-tools.md")
+      expect(File.exist?(tools_file)).to be true
+      content = File.read(tools_file)
+      expect(content).to include("MCP Tool Reference")
+      expect(content).to include("rails_get_schema")
+      expect(content).to include('detail:"summary"')
+      expect(content).to include("limit")
+      expect(content).to include("offset")
     end
   end
 
   it "skips unchanged files" do
     Dir.mktmpdir do |dir|
       first = described_class.new(context).call(dir)
-      expect(first[:written].size).to eq(2)
+      expect(first[:written].size).to eq(3)
 
       second = described_class.new(context).call(dir)
       expect(second[:written].size).to eq(0)
-      expect(second[:skipped].size).to eq(2)
+      expect(second[:skipped].size).to eq(3)
     end
   end
 
@@ -53,7 +62,7 @@ RSpec.describe RailsAiContext::Serializers::ClaudeRulesSerializer do
     context[:schema] = { adapter: "postgresql", tables: {} }
     Dir.mktmpdir do |dir|
       result = described_class.new(context).call(dir)
-      expect(result[:written].size).to eq(1) # only models
+      expect(result[:written].size).to eq(2) # models + mcp-tools
     end
   end
 
@@ -61,7 +70,7 @@ RSpec.describe RailsAiContext::Serializers::ClaudeRulesSerializer do
     context[:models] = {}
     Dir.mktmpdir do |dir|
       result = described_class.new(context).call(dir)
-      expect(result[:written].size).to eq(1) # only schema
+      expect(result[:written].size).to eq(2) # schema + mcp-tools
     end
   end
 end

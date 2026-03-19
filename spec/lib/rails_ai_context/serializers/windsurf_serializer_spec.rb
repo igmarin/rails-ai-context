@@ -31,7 +31,7 @@ RSpec.describe RailsAiContext::Serializers::WindsurfSerializer do
     output = described_class.new(context).call
     expect(output).to include("MyApp")
     expect(output).to include("Rails 8.0")
-    expect(output).to include("MCP tools")
+    expect(output).to include("MCP Tools")
   end
 
   it "includes model names" do

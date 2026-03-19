@@ -24,7 +24,8 @@ module RailsAiContext
         files = {
           "rails-project.mdc" => render_project_rule,
           "rails-models.mdc" => render_models_rule,
-          "rails-controllers.mdc" => render_controllers_rule
+          "rails-controllers.mdc" => render_controllers_rule,
+          "rails-mcp-tools.mdc" => render_mcp_tools_rule
         }
 
         files.each do |filename, content|
@@ -85,8 +86,8 @@ module RailsAiContext
         end
 
         lines << ""
-        lines << "Use MCP tools (rails_get_schema, rails_get_model_details, etc.) for details."
-        lines << "Call with detail:\"summary\" first, then drill into specifics."
+        lines << "MCP tools available — see rails-mcp-tools.mdc for full reference."
+        lines << "Always call with detail:\"summary\" first, then drill into specifics."
 
         lines.join("\n")
       end
@@ -149,6 +150,52 @@ module RailsAiContext
         lines << "- ...#{controllers.size - 25} more" if controllers.size > 25
         lines << ""
         lines << "Use `rails_get_controllers` MCP tool with controller:\"Name\" for full detail."
+
+        lines.join("\n")
+      end
+
+      # Always-on MCP tool reference
+      def render_mcp_tools_rule # rubocop:disable Metrics/MethodLength
+        lines = [
+          "---",
+          "description: \"MCP tool reference with parameters and examples\"",
+          "alwaysApply: true",
+          "---",
+          "",
+          "# MCP Tool Reference",
+          "",
+          "Detail levels: summary | standard (default) | full",
+          "",
+          "## rails_get_schema",
+          "Params: table, detail, limit, offset, format",
+          "- `rails_get_schema(detail:\"summary\")` — all tables with column counts",
+          "- `rails_get_schema(table:\"users\")` — full detail for one table",
+          "- `rails_get_schema(detail:\"summary\", limit:20, offset:40)` — paginate",
+          "",
+          "## rails_get_model_details",
+          "Params: model, detail",
+          "- `rails_get_model_details(detail:\"summary\")` — list model names",
+          "- `rails_get_model_details(model:\"User\")` — full detail",
+          "",
+          "## rails_get_routes",
+          "Params: controller, detail, limit, offset",
+          "- `rails_get_routes(detail:\"summary\")` — counts per controller",
+          "- `rails_get_routes(controller:\"users\")` — one controller",
+          "",
+          "## rails_get_controllers",
+          "Params: controller, detail",
+          "- `rails_get_controllers(detail:\"summary\")` — names + action counts",
+          "- `rails_get_controllers(controller:\"UsersController\")` — full detail",
+          "",
+          "## Other tools",
+          "- `rails_get_config` — cache, session, middleware",
+          "- `rails_get_test_info` — framework, factories, CI",
+          "- `rails_get_gems` — categorized gems",
+          "- `rails_get_conventions` — architecture patterns",
+          "- `rails_search_code(pattern:\"regex\", file_type:\"rb\", max_results:20)`",
+          "",
+          "Start with detail:\"summary\", then drill into specifics."
+        ]
 
         lines.join("\n")
       end

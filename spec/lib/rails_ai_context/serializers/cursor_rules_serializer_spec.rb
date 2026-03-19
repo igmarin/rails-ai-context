@@ -64,6 +64,19 @@ RSpec.describe RailsAiContext::Serializers::CursorRulesSerializer do
     end
   end
 
+  it "generates MCP tools rule with alwaysApply" do
+    Dir.mktmpdir do |dir|
+      described_class.new(context).call(dir)
+
+      tools_rule = File.read(File.join(dir, ".cursor", "rules", "rails-mcp-tools.mdc"))
+      expect(tools_rule).to include("alwaysApply: true")
+      expect(tools_rule).to include("MCP Tool Reference")
+      expect(tools_rule).to include("rails_get_schema")
+      expect(tools_rule).to include('detail:"summary"')
+      expect(tools_rule).to include("limit")
+    end
+  end
+
   it "skips unchanged files" do
     Dir.mktmpdir do |dir|
       first = described_class.new(context).call(dir)

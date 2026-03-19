@@ -16,11 +16,16 @@ RSpec.describe RailsAiContext::Serializers::WindsurfRulesSerializer do
   it "generates .windsurf/rules/*.md files" do
     Dir.mktmpdir do |dir|
       result = described_class.new(context).call(dir)
-      expect(result[:written].size).to eq(1)
+      expect(result[:written].size).to eq(2)
 
       content = File.read(File.join(dir, ".windsurf", "rules", "rails-context.md"))
       expect(content).to include("App")
       expect(content.length).to be <= 5800
+
+      tools_content = File.read(File.join(dir, ".windsurf", "rules", "rails-mcp-tools.md"))
+      expect(tools_content).to include("MCP Tool Reference")
+      expect(tools_content).to include("rails_get_schema")
+      expect(tools_content.length).to be <= 5800
     end
   end
 

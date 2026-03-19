@@ -71,17 +71,19 @@ module RailsAiContext
           end
         end
 
-        # MCP tools
-        lines << "# MCP tools available"
-        lines << "Use detail:\"summary\" first, then drill into specifics."
-        lines << "- rails_get_schema — tables, columns, indexes"
-        lines << "- rails_get_model_details — associations, validations"
-        lines << "- rails_get_routes — HTTP verbs, paths, actions"
-        lines << "- rails_get_controllers — actions, filters, params"
-        lines << "- rails_search_code — regex codebase search"
+        # MCP tools — compact but complete (character budget is tight)
+        lines << "# MCP Tools (detail:\"summary\"|\"standard\"|\"full\")"
+        lines << "- rails_get_schema(table:\"name\"|detail:\"summary\"|limit:N|offset:N)"
+        lines << "- rails_get_model_details(model:\"Name\"|detail:\"summary\")"
+        lines << "- rails_get_routes(controller:\"name\"|detail:\"summary\"|limit:N|offset:N)"
+        lines << "- rails_get_controllers(controller:\"Name\"|detail:\"summary\")"
+        lines << "- rails_get_config — cache, session, middleware"
+        lines << "- rails_get_test_info — framework, factories, CI"
+        lines << "- rails_get_gems — categorized gems"
+        lines << "- rails_get_conventions — architecture patterns"
+        lines << "- rails_search_code(pattern:\"regex\"|file_type:\"rb\"|max_results:N)"
+        lines << "Start with detail:\"summary\", then drill into specifics."
         lines << ""
-
-        # Conventions
         lines << "# Rules"
         lines << "- Follow existing patterns"
         lines << "- Check schema via MCP before writing migrations"

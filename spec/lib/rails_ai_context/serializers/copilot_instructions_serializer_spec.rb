@@ -13,7 +13,7 @@ RSpec.describe RailsAiContext::Serializers::CopilotInstructionsSerializer do
   it "generates .github/instructions/*.instructions.md with applyTo" do
     Dir.mktmpdir do |dir|
       result = described_class.new(context).call(dir)
-      expect(result[:written].size).to eq(2)
+      expect(result[:written].size).to eq(3)
 
       models_file = File.read(File.join(dir, ".github", "instructions", "rails-models.instructions.md"))
       expect(models_file).to include("applyTo:")
@@ -24,6 +24,12 @@ RSpec.describe RailsAiContext::Serializers::CopilotInstructionsSerializer do
       expect(ctrl_file).to include("applyTo:")
       expect(ctrl_file).to include("app/controllers/**/*.rb")
       expect(ctrl_file).to include("UsersController")
+
+      tools_file = File.read(File.join(dir, ".github", "instructions", "rails-mcp-tools.instructions.md"))
+      expect(tools_file).to include("applyTo:")
+      expect(tools_file).to include("MCP Tool Reference")
+      expect(tools_file).to include("rails_get_schema")
+      expect(tools_file).to include('detail:"summary"')
     end
   end
 
@@ -31,7 +37,7 @@ RSpec.describe RailsAiContext::Serializers::CopilotInstructionsSerializer do
     context[:models] = {}
     Dir.mktmpdir do |dir|
       result = described_class.new(context).call(dir)
-      expect(result[:written].size).to eq(1) # only controllers
+      expect(result[:written].size).to eq(2) # controllers + mcp-tools
     end
   end
 
@@ -39,7 +45,7 @@ RSpec.describe RailsAiContext::Serializers::CopilotInstructionsSerializer do
     context[:controllers] = { controllers: {} }
     Dir.mktmpdir do |dir|
       result = described_class.new(context).call(dir)
-      expect(result[:written].size).to eq(1) # only models
+      expect(result[:written].size).to eq(2) # models + mcp-tools
     end
   end
 

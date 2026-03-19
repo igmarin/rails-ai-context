@@ -28,7 +28,7 @@ module RailsAiContext
         lines << ""
         lines << "Rails #{context[:rails_version]} | Ruby #{context[:ruby_version]}"
         lines << ""
-
+        lines.concat(copilot_engineering_rules_section)
         # Stack overview
         lines << "## Stack"
         schema = context[:schema]
@@ -37,10 +37,8 @@ module RailsAiContext
         models = context[:models]
         lines << "- Models: #{models.size}" if models.is_a?(Hash) && !models[:error]
 
-        routes = context[:routes]
-        if routes && !routes[:error]
-          lines << "- Routes: #{routes[:total_routes]} across #{(routes[:by_controller] || {}).size} controllers"
-        end
+        line = ContextSummary.routes_stack_line(context)
+        lines << line if line
 
         # Gems by category
         gems = context[:gems]
@@ -79,6 +77,9 @@ module RailsAiContext
             lines << ""
           end
         end
+
+        ContextSummary.compact_performance_security_section.each { |l| lines << l }
+        lines << ""
 
         # MCP tools
         lines << "## MCP Tool Reference"
@@ -119,6 +120,8 @@ module RailsAiContext
         lines << "- `rails_get_conventions` — architecture patterns, directory structure"
         lines << "- `rails_search_code(pattern:\"regex\", file_type:\"rb\", max_results:20)` — codebase search"
         lines << ""
+        lines << "_The same MCP reference also appears under `.github/instructions/rails-mcp-tools.instructions.md` and `.cursor/rules/rails-mcp-tools.mdc` for path-scoped clients._"
+        lines << ""
 
         # Conventions
         lines << "## Conventions"
@@ -128,6 +131,39 @@ module RailsAiContext
         lines << ""
 
         lines.join("\n")
+      end
+
+      # High-signal defaults so compact Copilot output is not only inventory + MCP docs.
+      def copilot_engineering_rules_section # rubocop:disable Metrics/MethodLength
+        [
+          "## Engineering rules (read first)",
+          "",
+          "Defaults for this codebase unless existing files clearly show a different pattern.",
+          "",
+          "### Controllers & strong parameters",
+          "- Permit attributes explicitly; never pass raw `params` into `Model.new`, `update`, or `assign_attributes`.",
+          "- Extend `permit` lists deliberately when adding fields; mirror neighboring actions in the same controller.",
+          "",
+          "### Authentication & authorization",
+          "- Guard mutating and sensitive reads with the app's existing auth (e.g. `before_action` filters, policies). A public route does not imply public data.",
+          "- Use `rails_get_controllers` for filters and `rails_get_conventions` for architecture hints when unsure.",
+          "",
+          "### Data access & performance",
+          "- Avoid N+1: use `includes` / `preload` / `eager_load` for associations used in views or serializers.",
+          "- Do not load unbounded collections: paginate list endpoints, use `find_each` in jobs, stream large exports.",
+          "- Large or hot tables: check indexes before new `WHERE`/`ORDER BY`; use `rails_get_schema` before heavy queries.",
+          "",
+          "### Security & inputs",
+          "- Treat external input as untrusted; avoid `constantize` / `send` / `eval` on user-controlled strings and raw SQL string interpolation.",
+          "- Allow-list host or path for any redirect built from user input (open-redirect risk).",
+          "",
+          "### Testing",
+          "- Prefer request or system specs for HTTP flows and integration; keep model specs tight for business rules.",
+          "- Run the project's test suite after substantive edits (often `bundle exec rspec` — confirm framework via `rails_get_test_info`).",
+          "",
+          "_Regenerated files are snapshots. Re-merge team-specific performance, security, or compliance rules at the top after `rails ai:context`, or keep them in separate committed instruction files._",
+          ""
+        ]
       end
     end
 

@@ -47,10 +47,8 @@ module RailsAiContext
           lines << "- Models: #{models.size}"
         end
 
-        routes = context[:routes]
-        if routes && !routes[:error]
-          lines << "- Routes: #{routes[:total_routes]}"
-        end
+        line = ContextSummary.routes_stack_line(context)
+        lines << line if line
 
         lines << ""
         lines << "## Working agreements"
@@ -58,6 +56,8 @@ module RailsAiContext
         lines << "- Start with `detail:\"summary\"`, then drill into specifics."
         lines << "- Run `bundle exec rspec` after behavior changes."
         lines << "- Run `bundle exec rubocop --parallel` before finishing substantial code changes."
+        lines << ""
+        ContextSummary.compact_performance_security_section.each { |l| lines << l }
         lines << ""
         lines << "## Key models"
 

@@ -50,9 +50,13 @@ module RailsAiContext
 
           ## Suggested workflow
 
-          1. Run `rails ai:context:codex` after significant schema or architecture changes.
+          1. Run `rails ai:context` (or `rails ai:context:codex`) after significant schema or architecture changes — a single full run keeps counts consistent across CLAUDE.md, Cursor rules, and Copilot files.
           2. In Codex, prefer the `rails_*` MCP tools over guessing application structure.
           3. Start with `detail:"summary"` and drill down only where needed.
+
+          ## Team rules
+
+          Generated files are **snapshots**. Re-merge any repo-specific performance, security, or compliance guidance (e.g. from your previous `.github/copilot-instructions.md` or internal playbooks) after regenerating, or keep that guidance in separate committed rule files.
         MD
       end
     end

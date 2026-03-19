@@ -21,6 +21,8 @@ RSpec.describe RailsAiContext::Serializers::CodexSupportSerializer do
       expect(readme).to include("Codex")
       expect(readme).to include("AGENTS.md")
       expect(readme).to include(".mcp.json")
+      expect(readme).to include("Team rules")
+      expect(readme).to include("snapshots")
     end
   end
 

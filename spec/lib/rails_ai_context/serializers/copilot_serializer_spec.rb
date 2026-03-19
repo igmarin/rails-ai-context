@@ -20,6 +20,10 @@ RSpec.describe RailsAiContext::Serializers::CopilotSerializer do
       expect(output).to include("Copilot Context")
       expect(output).to include("MCP tools")
       expect(output).to include("rails_get_schema")
+      expect(output).to include("Performance & security (baseline)")
+      expect(output).to include("Engineering rules (read first)")
+      expect(output).to include("strong parameters")
+      expect(output).to include("N+1")
     end
 
     it "includes model associations" do

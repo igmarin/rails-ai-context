@@ -25,6 +25,8 @@ RSpec.describe RailsAiContext::Serializers::CodexSerializer do
       expect(output).to include("rails_get_schema")
       expect(output).to include('detail:"summary"')
       expect(output).to include("User")
+      expect(output).to include("Performance & security (baseline)")
+      expect(output).to include("snapshots")
     end
   end
 

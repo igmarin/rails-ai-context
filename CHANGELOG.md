@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Consistent controller counts in compact output** — stack summaries now use the controller introspector for the primary count (matching `# Controllers (N)` in split rules). When routing lists more names than `app/controllers` classes, both figures are shown.
+
+### Changed
+
+- **Compact guidance** — `CLAUDE.md`, Copilot compact instructions, and `AGENTS.md` include a short performance/security baseline and explicit note that generated files are snapshots; `.codex/README.md` documents re-merging team rules.
+- **Copilot compact** — `.github/copilot-instructions.md` now leads with actionable **Engineering rules** (strong params, auth, query performance, security inputs, testing) before stack inventory; MCP section notes path-scoped duplicates under `.github/instructions/` and `.cursor/rules/`.
+
 ## [0.8.0] - 2026-03-19
 
 ### Added

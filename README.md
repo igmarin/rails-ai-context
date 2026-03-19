@@ -18,7 +18,7 @@ The AI doesn't know your schema, your Devise setup, your Sidekiq jobs, or that `
 
 **rails-ai-context fixes this.** It auto-introspects your entire Rails app and feeds everything to your AI assistant — schema, models, routes, controllers, jobs, gems, auth, API, tests, config, and conventions — through the [Model Context Protocol (MCP)](https://modelcontextprotocol.io).
 
-**No configuration. No manual tool definitions. Just `bundle add` and go.**
+**No configuration. No manual tool definitions.** Install this fork from GitHub (see Quick Start), then run the generator.
 
 > **[Full Guide](docs/GUIDE.md)** — complete documentation with every command, parameter, and configuration option.
 
@@ -26,13 +26,23 @@ The AI doesn't know your schema, your Devise setup, your Sidekiq jobs, or that `
 
 ## Quick Start
 
+This fork is installed from GitHub (the `rails-ai-context` gem on RubyGems still points at the upstream release line).
+
 ```bash
-bundle add rails-ai-context
+bundle add rails-ai-context --github=igmarin/rails-ai-context
 rails generate rails_ai_context:install
 rails ai:context
 ```
 
-That's it. Three commands. Your AI assistant now understands your entire Rails app.
+Alternatively, add to your `Gemfile`:
+
+```ruby
+gem "rails-ai-context", github: "igmarin/rails-ai-context"
+```
+
+Then run `bundle install`, the generator, and `rails ai:context` as above.
+
+That's it. Your AI assistant now understands your entire Rails app.
 
 The install generator creates `.mcp.json` for MCP-capable clients, and `rails ai:context` now generates `AGENTS.md` for Codex-aware workflows.
 

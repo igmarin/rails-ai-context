@@ -52,6 +52,13 @@ module RailsAiContext
             # Max response size for MCP tool results (chars). Safety net for large apps.
             # config.max_tool_response_chars = 120_000
 
+            # Optional: path to markdown merged into compact Copilot + Codex (default: config/rails_ai_context/overrides.md)
+            # config.assistant_overrides_path = "config/rails_ai_context/overrides.md"
+
+            # Compact file model name caps (0 = MCP pointer only, no names listed)
+            # config.copilot_compact_model_list_limit = 5
+            # config.codex_compact_model_list_limit = 3
+
             # Auto-mount HTTP MCP endpoint at /mcp
             # config.auto_mount = false
             # config.http_path  = "/mcp"
@@ -60,6 +67,16 @@ module RailsAiContext
         RUBY
 
         say "Created config/initializers/rails_ai_context.rb", :green
+      end
+
+      def create_assistant_overrides_template
+        path = "config/rails_ai_context/overrides.md"
+        dest = File.join(destination_root, path)
+        return if File.exist?(dest)
+
+        FileUtils.mkdir_p(File.dirname(dest))
+        copy_file "overrides.md", path
+        say "Created #{path} (optional repo-specific guidance for Copilot/Codex)", :green
       end
 
       def add_to_gitignore
@@ -111,7 +128,7 @@ module RailsAiContext
         say "Generated files per AI tool:", :yellow
         say "  Claude Code    → CLAUDE.md + .claude/rules/*.md"
         say "  OpenAI Codex   → AGENTS.md + .codex/README.md"
-        say "  Cursor         → .cursorrules + .cursor/rules/*.mdc"
+        say "  Cursor         → .cursorrules + .cursor/rules/*.mdc (incl. rails-engineering.mdc)"
         say "  Windsurf       → .windsurfrules + .windsurf/rules/*.md"
         say "  GitHub Copilot → .github/copilot-instructions.md + .github/instructions/*.instructions.md"
         say ""

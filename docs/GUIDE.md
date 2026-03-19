@@ -38,8 +38,9 @@ rails ai:context
 
 This creates:
 1. `config/initializers/rails_ai_context.rb` — configuration file
-2. `.mcp.json` — MCP auto-discovery for MCP-capable clients
-3. Assistant-specific context files — including `AGENTS.md` for Codex
+2. `config/rails_ai_context/overrides.md` — optional repo-specific guidance (merged into compact Copilot + Codex)
+3. `.mcp.json` — MCP auto-discovery for MCP-capable clients
+4. Assistant-specific context files — including `AGENTS.md` for Codex
 
 ### Existing project
 
@@ -62,8 +63,9 @@ rails ai:doctor
 
 1. Creates `.mcp.json` in project root (MCP auto-discovery)
 2. Creates `config/initializers/rails_ai_context.rb` with commented defaults
-3. Adds `.ai-context.json` to `.gitignore` (JSON cache — markdown files should be committed)
-4. Generates all context files
+3. Creates `config/rails_ai_context/overrides.md` when absent (edit for large-table / team policies)
+4. Adds `.ai-context.json` to `.gitignore` (JSON cache — markdown files should be committed)
+5. Generates all context files
 
 ---
 
@@ -125,7 +127,7 @@ end
 
 ## Generated Files
 
-`rails ai:context` generates **17 files** across all AI assistants:
+`rails ai:context` generates **18+ files** across all AI assistants (counts include Codex and split rules).
 
 ### Claude Code (4 files)
 
@@ -136,12 +138,13 @@ end
 | `.claude/rules/rails-models.md` | Model listing with associations | Auto-loaded by Claude Code alongside CLAUDE.md. |
 | `.claude/rules/rails-mcp-tools.md` | Full MCP tool reference | Parameters, detail levels, pagination, workflow guide. |
 
-### Cursor (5 files)
+### Cursor (6 files)
 
 | File | Purpose | Notes |
 |------|---------|-------|
-| `.cursorrules` | Legacy context file | Compact mode. Backward compatibility with older Cursor versions. |
-| `.cursor/rules/rails-project.mdc` | Project overview | `alwaysApply: true` — loaded in every conversation. |
+| `.cursorrules` | Legacy context file | Compact mode: engineering rules + stack + MCP (aligned with Copilot order). |
+| `.cursor/rules/rails-engineering.mdc` | Engineering essentials | `alwaysApply: true` — strong params, auth, N+1, security; points to overrides + full docs. |
+| `.cursor/rules/rails-project.mdc` | Project overview | `alwaysApply: true` — stack counts, gems (capped), `routes_stack_line`. |
 | `.cursor/rules/rails-models.mdc` | Model reference | `globs: app/models/**/*.rb` — auto-attaches when editing models. |
 | `.cursor/rules/rails-controllers.mdc` | Controller reference | `globs: app/controllers/**/*.rb` — auto-attaches when editing controllers. |
 | `.cursor/rules/rails-mcp-tools.mdc` | MCP tool reference | `alwaysApply: true` — always available. |
@@ -158,7 +161,7 @@ end
 
 | File | Purpose | Notes |
 |------|---------|-------|
-| `.github/copilot-instructions.md` | Repo-wide instructions | ≤500 lines in compact mode. |
+| `.github/copilot-instructions.md` | Repo-wide instructions | ≤500 lines in compact mode. Order: engineering rules → stack → optional `overrides.md` → performance + Rails patterns → short model list → MCP. |
 | `.github/instructions/rails-models.instructions.md` | Model context | `applyTo: app/models/**/*.rb` — loaded when editing models. |
 | `.github/instructions/rails-controllers.instructions.md` | Controller context | `applyTo: app/controllers/**/*.rb` — loaded when editing controllers. |
 | `.github/instructions/rails-mcp-tools.instructions.md` | MCP tool reference | `applyTo: **/*` — loaded everywhere. |
@@ -172,6 +175,13 @@ end
 ### Which files to commit
 
 Commit **all files except `.ai-context.json`** (which is gitignored). This gives your entire team AI-assisted context automatically.
+
+### Repo-specific guidance (`config/rails_ai_context/overrides.md`)
+
+Optional markdown **merged verbatim** into compact `.github/copilot-instructions.md` and `AGENTS.md` under **Repo-specific guidance** when you run `rails ai:context`. Use it for tables that must not be full-scanned, tenant rules, caching/replica notes, and other policies the gem cannot infer.
+
+- Override path: `config.assistant_overrides_path` (relative to `Rails.root` or absolute).
+- Cursor does not embed the full file in MDC (size limits); `rails-engineering.mdc` adds a pointer when the file exists and is non-empty.
 
 ---
 
@@ -576,6 +586,13 @@ RailsAiContext.configure do |config|
   # Max response size for tool results (safety net)
   config.max_tool_response_chars = 120_000
 
+  # Optional markdown merged into compact Copilot + Codex (default: config/rails_ai_context/overrides.md)
+  # config.assistant_overrides_path = "config/rails_ai_context/overrides.md"
+
+  # Model names shown in compact copilot-instructions / AGENTS / .cursorrules (0 = MCP pointer only)
+  # config.copilot_compact_model_list_limit = 5
+  # config.codex_compact_model_list_limit = 3
+
   # Cache TTL for introspection results (seconds)
   config.cache_ttl = 30
 
@@ -615,6 +632,9 @@ end
 | `http_bind` | String | `"127.0.0.1"` | HTTP bind address |
 | `http_port` | Integer | `6029` | HTTP server port |
 | `server_name` | String | `"rails-ai-context"` | MCP server name |
+| `assistant_overrides_path` | String | `nil` → `config/rails_ai_context/overrides.md` | Markdown merged into compact Copilot + Codex |
+| `copilot_compact_model_list_limit` | Integer | `5` | Max model rows in copilot-instructions / `.cursorrules` (`0` = none) |
+| `codex_compact_model_list_limit` | Integer | `3` | Max model rows in `AGENTS.md` (`0` = none) |
 
 ---
 

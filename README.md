@@ -50,7 +50,8 @@ The install generator creates `.mcp.json` for MCP-capable clients, and `rails ai
 
 1. **`bundle install` must finish cleanly** — until it does, `bundle exec rails -T` and `rails ai:serve` (from `.mcp.json`) cannot be verified. Merging this gem to `main` does not fix a broken or incomplete bundle on the host app.
 2. **Regenerate in one shot** — run `rails ai:context` (not only a single format) so route/controller summaries stay consistent across `CLAUDE.md`, `.cursor/rules/`, and `.github/instructions/`.
-3. **Keep team-specific rules** — generated files are snapshots. Re-merge performance, security, or compliance guidance after regenerating, or store it in separate committed rule files (see `.codex/README.md`).
+3. **Keep team-specific rules** — generated files are snapshots. Prefer committed **`config/rails_ai_context/overrides.md`** (merged into compact Copilot + Codex as **Repo-specific guidance**), or re-merge into generated files after each `rails ai:context` (see `.codex/README.md`).
+4. **Tune list sizes** — `RailsAiContext.configure { |c| c.copilot_compact_model_list_limit = 5 }` (and `codex_compact_model_list_limit`); set `0` to list no model names and point only to MCP.
 
 ---
 
@@ -76,6 +77,7 @@ your-rails-app/
 ├── 🟢 Cursor
 │   ├── .cursorrules                                      legacy compat
 │   └── .cursor/rules/
+│       ├── rails-engineering.mdc                         alwaysApply: true (rules first)
 │       ├── rails-project.mdc                             alwaysApply: true
 │       ├── rails-models.mdc                              globs: app/models/**
 │       ├── rails-controllers.mdc                         globs: app/controllers/**

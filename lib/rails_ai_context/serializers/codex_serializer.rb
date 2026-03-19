@@ -33,6 +33,8 @@ module RailsAiContext
         lines << ""
         lines << "Codex reads this file before starting work in this repository."
         lines << ""
+        lines.concat(SharedAssistantGuidance.compact_engineering_rules_lines)
+
         lines << "## Project overview"
         lines << "- App: #{context[:app_name]}"
         lines << "- Stack: Rails #{context[:rails_version]} | Ruby #{context[:ruby_version]}"
@@ -57,22 +59,12 @@ module RailsAiContext
         lines << "- Run `bundle exec rspec` after behavior changes."
         lines << "- Run `bundle exec rubocop --parallel` before finishing substantial code changes."
         lines << ""
-        ContextSummary.compact_performance_security_section.each { |l| lines << l }
-        lines << ""
-        lines << "## Key models"
+        lines.concat(SharedAssistantGuidance.repo_specific_guidance_section_lines)
 
-        if models.is_a?(Hash) && !models[:error] && models.any?
-          models.keys.sort.first(15).each do |name|
-            data = models[name]
-            assocs = (data[:associations] || []).first(2).map { |a| "#{a[:type]} :#{a[:name]}" }.join(", ")
-            line = "- #{name}"
-            line += " — #{assocs}" unless assocs.empty?
-            lines << line
-          end
-          lines << "- ...#{models.size - 15} more" if models.size > 15
-        else
-          lines << "- Use `rails_get_model_details(detail:\"summary\")` to discover models."
-        end
+        SharedAssistantGuidance.performance_security_and_rails_examples_lines.each { |l| lines << l }
+        lines << ""
+
+        append_compact_codex_models_section(lines, models)
 
         conv = context[:conventions]
         if conv.is_a?(Hash) && !conv[:error]
@@ -80,14 +72,13 @@ module RailsAiContext
           patterns = conv[:patterns] || []
 
           if architecture.any? || patterns.any?
-            lines << ""
             lines << "## Architecture hints"
             architecture.first(5).each { |item| lines << "- #{item}" }
             patterns.first(5).each { |item| lines << "- #{item}" }
+            lines << ""
           end
         end
 
-        lines << ""
         lines << "## MCP tool reference"
         lines << "- `rails_get_schema(detail:\"summary\")` to inspect tables first."
         lines << "- `rails_get_model_details(model:\"User\")` for model-level detail."
@@ -102,6 +93,31 @@ module RailsAiContext
         lines << ""
 
         lines.join("\n")
+      end
+
+      def append_compact_codex_models_section(lines, models)
+        lines << "## Key models"
+        unless models.is_a?(Hash) && !models[:error] && models.any?
+          lines << "- Use `rails_get_model_details(detail:\"summary\")` to discover models."
+          lines << ""
+          return
+        end
+
+        limit = RailsAiContext.configuration.codex_compact_model_list_limit.to_i
+        if limit <= 0
+          lines << "- _Use `rails_get_model_details(detail:\"summary\")` for names — not listed here to save context._"
+        else
+          models.keys.sort.first(limit).each do |name|
+            data = models[name]
+            assocs = (data[:associations] || []).first(2).map { |a| "#{a[:type]} :#{a[:name]}" }.join(", ")
+            line = "- #{name}"
+            line += " — #{assocs}" unless assocs.empty?
+            lines << line
+          end
+          remainder = models.size - limit
+          lines << "- ...#{remainder} more — `rails_get_model_details(detail:\"summary\")`." if remainder.positive?
+        end
+        lines << ""
       end
     end
 

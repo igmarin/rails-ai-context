@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **`RailsAiContext::Serializers::SharedAssistantGuidance`** — shared engineering rules, Rails performance pattern examples, optional **`config/rails_ai_context/overrides.md`** merge into compact Copilot + Codex, and Cursor `rails-engineering.mdc` body.
+- **Cursor `rails-engineering.mdc`** — `alwaysApply: true` engineering essentials + pointers to full `copilot-instructions.md` / `AGENTS.md` and MCP rules.
+- **Configuration** — `assistant_overrides_path`, `copilot_compact_model_list_limit` (default 5), `codex_compact_model_list_limit` (default 3); `0` lists no model names (MCP-only pointer).
+- **Install generator** — creates `config/rails_ai_context/overrides.md` template when missing.
+
 ### Fixed
 
 - **Consistent controller counts in compact output** — stack summaries now use the controller introspector for the primary count (matching `# Controllers (N)` in split rules). When routing lists more names than `app/controllers` classes, both figures are shown.
@@ -15,6 +22,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Compact guidance** — `CLAUDE.md`, Copilot compact instructions, and `AGENTS.md` include a short performance/security baseline and explicit note that generated files are snapshots; `.codex/README.md` documents re-merging team rules.
 - **Copilot compact** — `.github/copilot-instructions.md` now leads with actionable **Engineering rules** (strong params, auth, query performance, security inputs, testing) before stack inventory; MCP section notes path-scoped duplicates under `.github/instructions/` and `.cursor/rules/`.
+- **Copilot / Codex / `.cursorrules` order** — engineering rules first, then stack, optional repo-specific section, performance baseline + **Rails patterns** subsection, trimmed model names, then MCP (Codex: `AGENTS.md` matches this flow).
+- **Legacy `.cursorrules`** — same ordering as Copilot compact; model list uses `copilot_compact_model_list_limit`.
+- **`rails-project.mdc`** — uses `ContextSummary.routes_stack_line`; caps gem categories shown; references `rails-engineering.mdc`.
 
 ## [0.8.0] - 2026-03-19
 

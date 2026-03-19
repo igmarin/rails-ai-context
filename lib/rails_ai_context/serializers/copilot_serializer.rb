@@ -28,7 +28,7 @@ module RailsAiContext
         lines << ""
         lines << "Rails #{context[:rails_version]} | Ruby #{context[:ruby_version]}"
         lines << ""
-        lines.concat(copilot_engineering_rules_section)
+        lines.concat(SharedAssistantGuidance.compact_engineering_rules_lines)
         # Stack overview
         lines << "## Stack"
         schema = context[:schema]
@@ -50,20 +50,10 @@ module RailsAiContext
         end
 
         lines << ""
+        lines.concat(SharedAssistantGuidance.repo_specific_guidance_section_lines)
 
-        # Models — Copilot gets more detail (up to 25 with associations)
-        if models.is_a?(Hash) && !models[:error] && models.any?
-          lines << "## Models (#{models.size})"
-          models.keys.sort.first(25).each do |name|
-            data = models[name]
-            assocs = (data[:associations] || []).first(3).map { |a| "#{a[:type]} :#{a[:name]}" }.join(", ")
-            line = "- **#{name}**"
-            line += " — #{assocs}" unless assocs.empty?
-            lines << line
-          end
-          lines << "- _...#{models.size - 25} more_" if models.size > 25
-          lines << ""
-        end
+        SharedAssistantGuidance.performance_security_and_rails_examples_lines.each { |l| lines << l }
+        lines << ""
 
         # Architecture
         conv = context[:conventions]
@@ -78,8 +68,8 @@ module RailsAiContext
           end
         end
 
-        ContextSummary.compact_performance_security_section.each { |l| lines << l }
-        lines << ""
+        append_compact_copilot_models_section(lines, models)
+
 
         # MCP tools
         lines << "## MCP Tool Reference"
@@ -133,37 +123,25 @@ module RailsAiContext
         lines.join("\n")
       end
 
-      # High-signal defaults so compact Copilot output is not only inventory + MCP docs.
-      def copilot_engineering_rules_section # rubocop:disable Metrics/MethodLength
-        [
-          "## Engineering rules (read first)",
-          "",
-          "Defaults for this codebase unless existing files clearly show a different pattern.",
-          "",
-          "### Controllers & strong parameters",
-          "- Permit attributes explicitly; never pass raw `params` into `Model.new`, `update`, or `assign_attributes`.",
-          "- Extend `permit` lists deliberately when adding fields; mirror neighboring actions in the same controller.",
-          "",
-          "### Authentication & authorization",
-          "- Guard mutating and sensitive reads with the app's existing auth (e.g. `before_action` filters, policies). A public route does not imply public data.",
-          "- Use `rails_get_controllers` for filters and `rails_get_conventions` for architecture hints when unsure.",
-          "",
-          "### Data access & performance",
-          "- Avoid N+1: use `includes` / `preload` / `eager_load` for associations used in views or serializers.",
-          "- Do not load unbounded collections: paginate list endpoints, use `find_each` in jobs, stream large exports.",
-          "- Large or hot tables: check indexes before new `WHERE`/`ORDER BY`; use `rails_get_schema` before heavy queries.",
-          "",
-          "### Security & inputs",
-          "- Treat external input as untrusted; avoid `constantize` / `send` / `eval` on user-controlled strings and raw SQL string interpolation.",
-          "- Allow-list host or path for any redirect built from user input (open-redirect risk).",
-          "",
-          "### Testing",
-          "- Prefer request or system specs for HTTP flows and integration; keep model specs tight for business rules.",
-          "- Run the project's test suite after substantive edits (often `bundle exec rspec` — confirm framework via `rails_get_test_info`).",
-          "",
-          "_Regenerated files are snapshots. Re-merge team-specific performance, security, or compliance rules at the top after `rails ai:context`, or keep them in separate committed instruction files._",
-          ""
-        ]
+      def append_compact_copilot_models_section(lines, models)
+        return unless models.is_a?(Hash) && !models[:error] && models.any?
+
+        limit = RailsAiContext.configuration.copilot_compact_model_list_limit.to_i
+        lines << "## Models (#{models.size} total)"
+        if limit <= 0
+          lines << "- _No model names listed here — use `rails_get_model_details(detail:\"summary\")` for the full list._"
+        else
+          models.keys.sort.first(limit).each do |name|
+            data = models[name]
+            assocs = (data[:associations] || []).first(3).map { |a| "#{a[:type]} :#{a[:name]}" }.join(", ")
+            line = "- **#{name}**"
+            line += " — #{assocs}" unless assocs.empty?
+            lines << line
+          end
+          remainder = models.size - limit
+          lines << "- _...#{remainder} more — use `rails_get_model_details(detail:\"summary\")`._" if remainder.positive?
+        end
+        lines << ""
       end
     end
 

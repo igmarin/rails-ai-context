@@ -24,6 +24,8 @@ RSpec.describe RailsAiContext::Serializers::CopilotSerializer do
       expect(output).to include("Engineering rules (read first)")
       expect(output).to include("strong parameters")
       expect(output).to include("N+1")
+      expect(output).to include("Rails patterns")
+      expect(output).to include("find_each")
     end
 
     it "includes model associations" do
